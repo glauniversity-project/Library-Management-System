@@ -3,14 +3,17 @@ package library.management.system;
 import java.awt.*;
 import java.awt.FlowLayout;
 import java.awt.HeadlessException;
- 
-import javax.swing.JFrame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.border.*;
 
-public class aboutUs extends JFrame {
+public class aboutUs extends JFrame implements ActionListener {
     
     public JPanel contentPane;
+    public JButton b1;
     
     public JHyperlink linkEmail1 = new JHyperlink("Pawan Pandey");
     public JHyperlink linkEmail2 = new JHyperlink("Yash Nigam");
@@ -44,8 +47,17 @@ public class aboutUs extends JFrame {
             l5.setFont(new Font("Trebuchet MS", Font.BOLD | Font.ITALIC, 34));
             l5.setBounds(130,180,405,40);
             contentPane.add(l5);
+            
+            b1 = new JButton("Back");
+            b1.addActionListener(this);
+            b1.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
+            b1.setBorder(new LineBorder(new Color(0, 0, 0), 0, true));
+            b1.setBounds(600, 500, 170, 30);
+            b1.setBackground(Color.BLACK);
+            b1.setForeground(Color.WHITE);
+            contentPane.add(b1);
+            
 
-         
         linkEmail1.setURL("mailto:pawan.pandey_cs19@gla.ac.in");
         linkEmail2.setURL("mailto:yash.nigam_cs19@gla.ac.in");
         linkEmail3.setURL("mailto:yash.gupta_cs19@gla.ac.in");
@@ -63,7 +75,7 @@ public class aboutUs extends JFrame {
         getContentPane().add(linkEmail2);
         getContentPane().add(linkEmail3);
         getContentPane().add(linkEmail4);
-
+         
         setVisible(true);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    
@@ -78,5 +90,18 @@ public class aboutUs extends JFrame {
                 new aboutUs().setVisible(true);
             }
         });
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try{
+            if(e.getSource() == b1){
+                this.setVisible(false);
+		new Home().setVisible(true);	
+            }
+        }
+        catch(Exception ae){
+            
+        }
     }
 }
