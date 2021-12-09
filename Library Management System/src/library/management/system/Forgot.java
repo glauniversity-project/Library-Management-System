@@ -114,7 +114,7 @@ public class Forgot extends JFrame implements ActionListener{
 
 	JPanel panel = new JPanel();
 	panel.setBorder(new TitledBorder(new LineBorder(new Color(139, 69, 19), 2), "Forgot-Panel",
-			TitledBorder.LEADING, TitledBorder.TOP, null, new Color(178, 34, 34)));
+	TitledBorder.LEADING, TitledBorder.TOP, null, new Color(178, 34, 34)));
 	panel.setBounds(47, 45, 508, 281);
         panel.setBackground(Color.WHITE);
 	contentPane.add(panel);
@@ -124,6 +124,23 @@ public class Forgot extends JFrame implements ActionListener{
         try{
             conn con = new conn();
             if(ae.getSource() == b1){
+                
+                if(t1.getText().isEmpty() || t1.getText().trim().isEmpty()){
+                    t1.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Username is Empty");
+                    return;
+                }
+                else{
+                    if(!isUsernamevalid(t1.getText().trim())){
+                        t1.setBorder(BorderFactory.createLineBorder(Color.red));
+                        JOptionPane.showMessageDialog(null, "Username cannot contain Spaces");
+                        return;
+                    }          
+                    else{
+                        t1.setBorder(BorderFactory.createLineBorder(Color.black));
+                    }
+                }
+                
                 String sql = "select * from account where username=?";
 		PreparedStatement st = con.c.prepareStatement(sql);
 
@@ -137,6 +154,31 @@ public class Forgot extends JFrame implements ActionListener{
 
             }
             if(ae.getSource() == b2){
+                
+                
+                if(t4.getText().isEmpty() || t4.getText().trim().isEmpty()){
+                    t4.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Answer is Empty");
+                    return;
+                }
+                
+                String answer = t4.getText();
+                String username = t1.getText();
+                String str = "select sec_ans from account where username = '" + t1.getText() + "'";
+                PreparedStatement ps = con.c.prepareStatement(str);
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                String ans = rs1.getString("sec_ans");
+                rs1.close();
+                if(!ans.equals(answer)){
+                    JOptionPane.showMessageDialog(null, "Answer is Wrong");
+                    this.setVisible(false);
+                    new Login_user().setVisible(true);
+                    return;
+                }
+                
+                
+                
                 String sql = "select * from account where sec_ans=?";
 		PreparedStatement st = con.c.prepareStatement(sql);
 
@@ -144,7 +186,7 @@ public class Forgot extends JFrame implements ActionListener{
 		ResultSet rs = st.executeQuery();
 
 		while (rs.next()) {
-                    	t5.setText(rs.getString("password"));
+                    t5.setText(rs.getString("password"));
 		}
 
             }
@@ -156,6 +198,15 @@ public class Forgot extends JFrame implements ActionListener{
         }catch(Exception e){
             
         }
+    }
+    
+    public boolean isUsernamevalid(String str){
+        for(int i = 0; i< str.length(); i++){
+            if(Character.isSpaceChar(str.charAt(i))){
+                return false;
+            }
+        }
+        return true;
     }
 
 }
