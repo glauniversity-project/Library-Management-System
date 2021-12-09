@@ -120,5 +120,4 @@ public class Login_user extends JFrame implements ActionListener{
   	public static void main(String[] args) {
                 new Login_user().setVisible(true);
 	}
-
 }
