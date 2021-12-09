@@ -13,6 +13,7 @@ public class StudentDetails extends JFrame implements ActionListener{
     private JTable table;
     private JTextField search;
     private JButton b1,b2;
+    private int selected = 0;
     
     public static void main(String[] args) {
 	new StudentDetails().setVisible(true);
@@ -51,6 +52,7 @@ public class StudentDetails extends JFrame implements ActionListener{
 	table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent arg0) {
+                selected = 1;
                 int row = table.getSelectedRow();
 		search.setText(table.getModel().getValueAt(row, 1).toString());
             }
@@ -60,7 +62,7 @@ public class StudentDetails extends JFrame implements ActionListener{
 	table.setFont(new Font("Trebuchet MS", Font.BOLD, 16));
 	scrollPane.setViewportView(table);
 
-	JButton b1 = new JButton("Search");
+	b1 = new JButton("Search");
 	b1.addActionListener(this);
 	b1.setBorder(new LineBorder(new Color(255, 20, 147), 2, true));
 	ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/eight.png"));
@@ -72,7 +74,7 @@ public class StudentDetails extends JFrame implements ActionListener{
 	b1.setBounds(564, 89, 138, 33);
 	contentPane.add(b1);
 
-	JButton b2 = new JButton("Delete");
+	b2 = new JButton("Delete");
 	b2.addActionListener(this);
 	ImageIcon i4 = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/nineth.png"));
         Image i5 = i4.getImage().getScaledInstance(30, 30, Image.SCALE_DEFAULT);
@@ -133,7 +135,34 @@ public class StudentDetails extends JFrame implements ActionListener{
             
             conn con = new conn();
             if( ae.getSource() == b1){
-                String sql = "select * from student where concat(name, student_id) like ?";
+                
+                if(search.getText().isEmpty() || search.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Enter Student Name!");
+                    this.setVisible(false);
+                    new StudentDetails().setVisible(true);
+                    return;
+                }
+                
+                String sql1= "select count(student_id) as rowCount from student where concat(name, student_id, father, course, branch, year, semester) like ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, "%" + search.getText() + "%");
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Student Found");
+                    return;
+                }           
+                
+                if(search.getText().isEmpty() || search.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Please Enter Students Name!");
+                    this.setVisible(false);
+                    new StudentDetails().setVisible(true);
+                    return;
+                }               
+                
+                String sql = "select * from student where concat(name, student_id, father, course, branch, year, semester) like ?";
 		PreparedStatement st = con.c.prepareStatement(sql);
 		st.setString(1, "%" + search.getText() + "%");
 		ResultSet rs = st.executeQuery();
@@ -144,6 +173,29 @@ public class StudentDetails extends JFrame implements ActionListener{
             }
     
             if(ae.getSource() == b2){
+                
+                if(search.getText().isEmpty() || search.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Select a student to Delete");
+                    return;
+                }
+                if(selected == 0){
+                    JOptionPane.showMessageDialog(null, "Select a student to Delete");
+                    return;
+                }
+                
+                String sql1= "select count(student_id) as rowCount from student where concat(name, student_id, father, course) like ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, "%" + search.getText() + "%");
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Student Found");
+                    return;
+                }
+                
+                
                 String sql = "delete from student where name = '" + search.getText() + "'";
 		PreparedStatement st = con.c.prepareStatement(sql);
 
@@ -155,6 +207,8 @@ public class StudentDetails extends JFrame implements ActionListener{
 		} else if (response == JOptionPane.YES_OPTION) {
                     int rs = st.executeUpdate();
                     JOptionPane.showMessageDialog(null, "Deleted !!");
+                    this.setVisible(false);
+                    new StudentDetails().setVisible(true);
 		} else if (response == JOptionPane.CLOSED_OPTION) {
                 
                 }
