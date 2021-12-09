@@ -52,6 +52,7 @@ public class Home extends JFrame implements ActionListener{
             JMenuItem mntmReadme = new JMenuItem("Read Me");
             mntmReadme.setBackground(new Color(211, 211, 211));
             mntmReadme.setForeground(new Color(105, 105, 105));
+            mntmReadme.addActionListener(this);
             mnHelp.add(mntmReadme);
 
             JMenuItem mntmAboutUs = new JMenuItem("About Us");
@@ -206,6 +207,8 @@ public class Home extends JFrame implements ActionListener{
                 System.exit(ABORT);
             
             }else if(msg.equals("Read Me")){
+                setVisible(false);
+		new readme().setVisible(true);
             
             }else if(msg.equals("About Us")){
                 setVisible(false);
@@ -243,8 +246,7 @@ public class Home extends JFrame implements ActionListener{
             }
             if(ae.getSource() == b6){
                 this.setVisible(false);
-                new aboutUs().setVisible(true);
-            
+                new aboutUs().setVisible(true); 
             }
             
         }
