@@ -3,9 +3,9 @@ package library.management.system;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
-
-public class readme extends JFrame{
-
+import java.awt.event.*;
+public class readme extends JFrame implements ActionListener{
+        public  JButton b1;
 	private JPanel contentPane;
 
         public static void main(String[] args) {
@@ -15,12 +15,15 @@ public class readme extends JFrame{
         public readme() {
             
             super("Readme");
+//            setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\ram\\Desktop\\rohit.jpg"));
             setBackground(new Color(173, 216, 230));
             setBounds(400, 150, 700, 500);
 		
             contentPane = new JPanel();
             setContentPane(contentPane);
             contentPane.setLayout(null);
+
+
 
             JLabel l3 = new JLabel("Library");
             l3.setForeground(new Color(0, 250, 154));
@@ -61,9 +64,30 @@ public class readme extends JFrame{
             l11.setBounds(70, 300, 600, 34);
             contentPane.add(l11);
                 
-                
+             b1 = new JButton("Back");
+            b1.addActionListener(this);
+            b1.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
+            b1.setBorder(new LineBorder(new Color(0, 0, 0), 0, true));
+            b1.setBounds(465, 400, 170, 30);
+            b1.setBackground(Color.BLACK);
+            b1.setForeground(Color.WHITE);
+            contentPane.add(b1);
+            
             contentPane.setBackground(Color.WHITE);
 	}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try{
+            if(e.getSource() == b1){
+                this.setVisible(false);
+		new Home().setVisible(true);	
+            }
+        }
+        catch(Exception ae){
+            
+        }
+    }
         
 
 }
