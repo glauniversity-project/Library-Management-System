@@ -115,6 +115,69 @@ public class SignUp extends JFrame implements ActionListener{
             conn con = new conn();
             
             if(ae.getSource() == b1){
+                
+                
+                if(textField.getText().isEmpty() || textField.getText().trim().isEmpty()){
+                    textField.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Username is Empty");
+                    return;
+                }
+                else{
+                    if(!isUsernamevalid(textField.getText().trim())){
+                        textField.setBorder(BorderFactory.createLineBorder(Color.red));
+                        JOptionPane.showMessageDialog(null, "Username cannot contain Spaces");
+                        return;
+                    }          
+                    else{
+                        String sql = "select count(username) as rowCount from account where username = '" + textField.getText() + "'";
+                        PreparedStatement ps = con.c.prepareStatement(sql);
+                        ResultSet rs1 = ps.executeQuery();
+                        rs1.next();
+                        int count = rs1.getInt("rowCount");
+                        if(count > 0){
+                            JOptionPane.showMessageDialog(null, "Username already taken!!");
+                            return;
+                        }
+                        rs1.close();
+                        textField.setBorder(BorderFactory.createLineBorder(Color.black));
+                    }
+                }
+                
+                if(textField_1.getText().isEmpty() || textField_1.getText().trim().isEmpty()){
+                    textField_1.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Name is Empty");
+                        return;
+                }
+                else{
+                    if(!isNameValid(textField_1.getText().trim())){
+                        textField_1.setBorder(BorderFactory.createLineBorder(Color.red));
+                        JOptionPane.showMessageDialog(null, "Name is Invalid");
+                        return;
+                    }
+                    else textField_1.setBorder(BorderFactory.createLineBorder(Color.black));
+                }
+                
+                if(textField_2.getText().isEmpty() || textField_2.getText().trim().isEmpty()){
+                    textField_2.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Password is Empty");
+                    return;
+                }
+                else{
+                    if(textField_2.getText().length() < 4){
+                        JOptionPane.showMessageDialog(null, "Password should be minimum 4 length");
+                        return;
+                    }
+                }
+                
+                
+                if(textField_3.getText().isEmpty() || textField_3.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Answer is Empty");
+                    return;
+                }
+               
+                
+                
+                
                 String sql = "insert into account(username, name, password, sec_q, sec_ans) values(?, ?, ?, ?, ?)";
 		PreparedStatement st = con.c.prepareStatement(sql);
 
@@ -127,12 +190,10 @@ public class SignUp extends JFrame implements ActionListener{
 		int i = st.executeUpdate();
 		if (i > 0){
                     JOptionPane.showMessageDialog(null, "successfully Created");
+                    this.setVisible(false);
+                    new Login_user().setVisible(true);
                 }
 
-                textField.setText("");
-                textField_1.setText("");
-		textField_2.setText("");
-		textField_3.setText("");
             }
             if(ae.getSource() == b2){
                 this.setVisible(false);
@@ -142,5 +203,24 @@ public class SignUp extends JFrame implements ActionListener{
         }catch(Exception e){
             
         }
+    }
+    public boolean isUsernamevalid(String str){
+        for(int i = 0; i< str.length(); i++){
+            if(Character.isSpaceChar(str.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public boolean isNameValid(String str){
+        String str1 = "!@#$%^&*()?><[]::{}_-;',.``~\\|";
+        for(int i=0; i < str.length(); i++){
+            CharSequence ch = String.valueOf(str.charAt(i));
+            if(Character.isDigit(str.charAt(i)) || str1.contains(ch)){
+                return false;
+            }
+        }
+        return true;
     }
 }
