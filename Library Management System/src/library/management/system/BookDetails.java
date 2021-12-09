@@ -13,6 +13,7 @@ public class BookDetails extends JFrame implements ActionListener{
     private JTable table;
     private JTextField search;
     private JButton b1,b2,b3;
+    private int selected = 0;
 
     public static void main(String[] args) {
 	new BookDetails().setVisible(true);
@@ -52,6 +53,7 @@ public class BookDetails extends JFrame implements ActionListener{
 	table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent arg0) {
+                selected = 1;
                 int row = table.getSelectedRow();
 		search.setText(table.getModel().getValueAt(row, 1).toString());
             }
@@ -61,7 +63,7 @@ public class BookDetails extends JFrame implements ActionListener{
 	table.setFont(new Font("Trebuchet MS", Font.BOLD, 16));
 	scrollPane.setViewportView(table);
 
-	JButton b1 = new JButton("Search");
+	b1 = new JButton("Search");
 	b1.addActionListener(this);
 	b1.setBorder(new LineBorder(new Color(255, 20, 147), 2, true));
 	ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/eight.png"));
@@ -73,7 +75,7 @@ public class BookDetails extends JFrame implements ActionListener{
 	b1.setBounds(564, 89, 138, 33);
 	contentPane.add(b1);
 
-	JButton b2 = new JButton("Delete");
+	b2 = new JButton("Delete");
 	b2.addActionListener(this);
 	ImageIcon i4 = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/nineth.png"));
         Image i5 = i4.getImage().getScaledInstance(30, 30, Image.SCALE_DEFAULT);
@@ -134,18 +136,62 @@ public class BookDetails extends JFrame implements ActionListener{
             
             conn con = new conn();
             if(e.getSource() == b1){
-             
-                String sql = "select * from book where concat(name, book_id) like ?";
+                
+                if(search.getText().isEmpty() || search.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Please Enter Book Name!");
+                    this.setVisible(false);
+                    new BookDetails().setVisible(true);
+                    return;
+                }
+                
+                String sql1= "select count(book_id) as rowCount from book where concat(name, book_id, isbn, publisher) like ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, "%" + search.getText() + "%");
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Book Found");
+                    search.setText("");
+                    return;
+                }
+                
+                
+                String sql = "select * from book where concat(name, book_id, isbn, publisher) like ?";
 		PreparedStatement st = con.c.prepareStatement(sql);
 		st.setString(1, "%" + search.getText() + "%");
-		ResultSet rs = st.executeQuery();
-
+		ResultSet rs = st.executeQuery();               
+                
 		table.setModel(DbUtils.resultSetToTableModel(rs));
                 rs.close();
                 st.close();
 
             }
             if(e.getSource() == b2){
+                
+                if(search.getText().isEmpty() || search.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Select a book to Delete");
+                    return;
+                }
+                if(selected == 0){
+                    JOptionPane.showMessageDialog(null, "Select a book to Delete");
+                    return;
+                }
+                
+                String sql1= "select count(book_id) as rowCount from book where concat(name, book_id) like ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, "%" + search.getText() + "%");
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Book Found");
+                    return;
+                }
+                
                 String sql = "delete from book where name = '" + search.getText() + "'";
 		PreparedStatement st = con.c.prepareStatement(sql);
 
@@ -157,14 +203,14 @@ public class BookDetails extends JFrame implements ActionListener{
 		} else if (response == JOptionPane.YES_OPTION) {
                     int rs = st.executeUpdate();
                     JOptionPane.showMessageDialog(null, "Deleted !!");
-                } else if (response == JOptionPane.CLOSED_OPTION) {
+                    this.setVisible(false);
+                    new BookDetails().setVisible(true);
+                } 
+                else if (response == JOptionPane.CLOSED_OPTION) {
 		
                 }
                 st.close();
-		
-		
             }
-            
             con.c.close();
         }catch(Exception ee){
             
