@@ -7,6 +7,7 @@ import javax.swing.border.*;
 import com.toedter.calendar.JDateChooser;
 import java.awt.event.*;
 import java.sql.*;
+import net.proteanit.sql.DbUtils;
 
 public class IssueBook extends JFrame implements ActionListener{
 
@@ -291,11 +292,36 @@ public class IssueBook extends JFrame implements ActionListener{
         try{
             conn con = new conn();
             if(ae.getSource() == b1){
+                
+                if(t1.getText().isEmpty() || t1.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Enter Book ID");
+                    return;
+                }
+                else{
+                    if(!isIdValid(t1.getText())){
+                        JOptionPane.showMessageDialog(null, "Book Id Invalid");
+                        return;
+                    }
+                }
+                
+                String sql1= "select count(book_id) as rowCount from book where book_id = ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, t1.getText());
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Book Found");
+                    return;
+                }
+                
                 String sql = "select * from book where book_id = ?";
 		PreparedStatement st = con.c.prepareStatement(sql);
+               
 		st.setString(1, t1.getText());
 		ResultSet rs = st.executeQuery();
-		
+                		
                 while (rs.next()) {
                     t2.setText(rs.getString("name"));
                     t3.setText(rs.getString("isbn"));
@@ -309,6 +335,31 @@ public class IssueBook extends JFrame implements ActionListener{
 		
             }
             if(ae.getSource() == b2){
+                
+                if(t8.getText().isEmpty() || t8.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Enter Student ID");
+                    return;
+                }
+                else{
+                    if(!isIdValid(t8.getText())){
+                        JOptionPane.showMessageDialog(null, "Student Id Invalid");
+                        return;
+                    }
+                }
+                
+                String sql1= "select count(student_id) as rowCount from student where student_id = ?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, t8.getText());
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Student Found");
+                    return;
+                }
+                
+                
                 String sql = "select * from student where student_id = ?";
 		PreparedStatement st = con.c.prepareStatement(sql);
 		st.setString(1, t8.getText());
@@ -327,22 +378,53 @@ public class IssueBook extends JFrame implements ActionListener{
 		
             }
             if(ae.getSource() == b3){
-                    try{
-                String sql = "insert into issueBook(book_id, student_id, bname, sname, course, branch, dateOfIssue) values(?, ?, ?, ?, ?, ?, ?)";
-		PreparedStatement st = con.c.prepareStatement(sql);
-		st.setString(1, t1.getText());
-		st.setString(2, t8.getText());
-		st.setString(3, t2.getText());
-		st.setString(4, t9.getText());
-		st.setString(5, t11.getText());
-		st.setString(6, t12.getText());
-		st.setString(7, ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText());
-		int i = st.executeUpdate();
-		if (i > 0)
-                    JOptionPane.showMessageDialog(null, "Successfully Book Issued..!");
-		else
-                    JOptionPane.showMessageDialog(null, "error");
-                    }catch(Exception e){
+                try{
+                    
+                    if(t1.getText().isEmpty() || t8.getText().isEmpty() || t2.getText().isEmpty() || t9.getText().isEmpty() ){
+                        JOptionPane.showMessageDialog(null, "First Search Both Student and Book");
+                        return;
+                    }
+                    
+                    if(dateChooser.getDate() == null){
+                        JOptionPane.showMessageDialog(null, "Date not set");
+                        return;
+                    }
+                    
+                    String sql = "insert into issueBook(book_id, student_id, bname, sname, course, branch, dateOfIssue) values(?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement st = con.c.prepareStatement(sql);
+                    st.setString(1, t1.getText());
+                    st.setString(2, t8.getText());
+                    st.setString(3, t2.getText());
+                    st.setString(4, t9.getText());
+                    st.setString(5, t11.getText());
+                    st.setString(6, t12.getText());
+                    st.setString(7, ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText());
+                    
+                    
+                    String deleteBookFromBookss = "select count from book where book_id = '" + t1.getText() + "'";
+                        PreparedStatement ps = con.c.prepareStatement(deleteBookFromBookss);
+                        ResultSet rs = ps.executeQuery();
+                        rs.next();
+                        int count = rs.getInt("count");
+                        rs.close();
+                        if(count <= 0){
+                            JOptionPane.showMessageDialog(null, "No Book in Inventory");
+                            this.setVisible(false);
+                            new IssueBook().setVisible(true);
+                        }
+                        else{
+                            int i = st.executeUpdate();st.close();
+                            JOptionPane.showMessageDialog(null, "Successfully Book Issued..!");
+                            count--;
+                            String updateSQL = "update book set count = '" + count + "'"+ " where book_id = '" + t1.getText() + "'";
+                            PreparedStatement ps1 = con.c.prepareStatement(updateSQL);
+                            int rs1 = ps1.executeUpdate();
+                        }
+                        ps.close();
+                        this.setVisible(false);
+                        new IssueBook().setVisible(true);
+                }
+                catch(Exception e){
                         e.printStackTrace();
                                 }
             }
@@ -351,10 +433,24 @@ public class IssueBook extends JFrame implements ActionListener{
 		new Home().setVisible(true);
 			
             }
-            
             con.c.close();
         }catch(Exception e){
             
         }
     }
+    
+    public boolean isIdValid(String str){
+        for(int i = 0; i < str.length(); i++){
+            if(!Character.isDigit(str.charAt(i))){
+                return false;
+            }
+        }
+        if(Integer.parseInt(str) == 0){
+            return false;
+        }
+        if(Integer.parseInt(str) > 10000){
+            return false;
+        }
+        return true;
+    } 
 }
