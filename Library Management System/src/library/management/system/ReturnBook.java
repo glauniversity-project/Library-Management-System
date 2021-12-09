@@ -11,7 +11,7 @@ public class ReturnBook extends JFrame implements ActionListener{
 
     private JPanel contentPane;
     private JTextField textField;
-    private JTextField textField_1;
+    private JTextField textField1;
     private JTextField textField_2;
     private JTextField textField_3;
     private JTextField textField_4;
@@ -27,14 +27,38 @@ public class ReturnBook extends JFrame implements ActionListener{
     public void delete() {
         try {
             conn con = new conn();
-            String sql = "delete from issueBook where book_id=?";
-            PreparedStatement st = con.c.prepareStatement(sql);
-            st.setString(1, textField.getText());
-            int i = st.executeUpdate();
-            if (i > 0)
-                JOptionPane.showConfirmDialog(null, "Book Returned");
-            else
-                JOptionPane.showMessageDialog(null, "error in Deleting");
+            
+            int response = JOptionPane.showConfirmDialog(null, "Do you want to continue?", "Confirm",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (response == JOptionPane.NO_OPTION) {
+                    this.setVisible(false);
+                    new ReturnBook().setVisible(true);
+		} 
+                else if (response == JOptionPane.YES_OPTION) {
+                    String sql = "delete from issueBook where book_id=?";
+                    PreparedStatement st = con.c.prepareStatement(sql);
+                    st.setString(1, textField.getText());
+                    int i = st.executeUpdate();
+                    if (i > 0){
+                        JOptionPane.showMessageDialog(null, "Book Returned");
+                        String deleteBookFromBookss = "select count from book where book_id = '" + textField.getText() + "'";
+                        PreparedStatement ps = con.c.prepareStatement(deleteBookFromBookss);
+                        ResultSet rs = ps.executeQuery();
+                        rs.next();
+                        int count = rs.getInt("count");
+                        rs.close();
+                            count++;
+                            String updateSQL = "update book set count = '" + count + "'"+ " where book_id = '" + textField.getText() + "'";
+                            PreparedStatement ps1 = con.c.prepareStatement(updateSQL);
+                            int rs1 = ps1.executeUpdate();
+                        
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Error in Deleting");
+                    }
+                    this.setVisible(false);
+                    new ReturnBook().setVisible(true);
+                }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e);
             e.printStackTrace();
@@ -105,12 +129,12 @@ public class ReturnBook extends JFrame implements ActionListener{
 	contentPane.add(textField);
 	textField.setColumns(10);
 
-	textField_1 = new JTextField();
-	textField_1.setForeground(new Color(105, 105, 105));
-	textField_1.setFont(new Font("Trebuchet MS", Font.BOLD, 14));
-	textField_1.setBounds(340, 56, 93, 20);
-	contentPane.add(textField_1);
-	textField_1.setColumns(10);
+	textField1 = new JTextField();
+	textField1.setForeground(new Color(105, 105, 105));
+	textField1.setFont(new Font("Trebuchet MS", Font.BOLD, 14));
+	textField1.setBounds(340, 56, 93, 20);
+	contentPane.add(textField1);
+	textField1.setColumns(10);
 
 	b1 = new JButton("Search");
 	b1.addActionListener(this);
@@ -195,12 +219,48 @@ public class ReturnBook extends JFrame implements ActionListener{
         try{
             conn con = new conn();
             if(ae.getSource() == b1){
+                
+                
+                if(textField.getText().isEmpty() || textField.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Book ID Empty");
+                    return;
+                }
+                else{
+                    if(!isIdValid(textField.getText().trim())){
+                        JOptionPane.showMessageDialog(null, "Book ID Invalid");
+                        return;
+                    }
+                }
+                
+                if(textField1.getText().isEmpty() || textField1.getText().trim().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Student ID Empty");
+                    return;
+                }
+                else{
+                    if(!isIdValid(textField1.getText().trim())){
+                        JOptionPane.showMessageDialog(null, "Student ID Invalid");
+                        return;
+                    }
+                }
+                
+               
+                String sql1= "select count(bname) as rowCount from issueBook where student_id = ? and book_id =?";
+                PreparedStatement ps = con.c.prepareStatement(sql1);
+                ps.setString(1, textField1.getText());
+		ps.setString(2, textField.getText());
+                ResultSet rs1 = ps.executeQuery();
+                rs1.next();
+                int count = rs1.getInt("rowCount");
+                rs1.close();
+                if(count == 0){
+                    JOptionPane.showMessageDialog(null, "No Student Found");
+                    return;
+                }
                 String sql = "select * from issueBook where student_id = ? and book_id =?";
 		PreparedStatement st = con.c.prepareStatement(sql);
-		st.setString(1, textField_1.getText());
+		st.setString(1, textField1.getText());
 		st.setString(2, textField.getText());
 		ResultSet rs = st.executeQuery();
-		
                 while (rs.next()) {
                     textField_2.setText(rs.getString("bname"));
                     textField_3.setText(rs.getString("sname"));
@@ -209,21 +269,35 @@ public class ReturnBook extends JFrame implements ActionListener{
                     textField_6.setText(rs.getString("dateOfIssue"));
 		}
 		st.close();
-		rs.close();
-		
+		rs.close();		
             }
             if(ae.getSource() == b2){
+                
+                if(textField1.getText().isEmpty()|| textField1.getText().isEmpty() || textField_2.getText().isEmpty() || textField_6.getText().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "First Click Search");
+                    return;
+                }
+                
                 String sql = "insert into returnBook(book_id, student_id, bname, sname,course, branch, dateOfIssue, dateOfReturn) values(?, ?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement st = con.c.prepareStatement(sql);
+                
+                
 		st.setString(1, textField.getText());
-		st.setString(2, textField_1.getText());
+		st.setString(2, textField1.getText());
 		st.setString(3, textField_2.getText());
 		st.setString(4, textField_3.getText());
 		st.setString(5, textField_4.getText());
 		st.setString(6, textField_5.getText());
 		st.setString(7, textField_6.getText());
-
-		st.setString(8, ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText());
+                
+                if(dateChooser.getDate() == null){
+                        JOptionPane.showMessageDialog(null, "Date not set");
+                        st.close();
+                        return;
+                    }
+                
+                st.setString(8, ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText());
+                
 		int i = st.executeUpdate();
 		if (i > 0) {
                     JOptionPane.showMessageDialog(null, "Processing..");
@@ -238,7 +312,20 @@ public class ReturnBook extends JFrame implements ActionListener{
 			
             }
         }catch(Exception e){
-            
         }
     }
+     public boolean isIdValid(String str){
+        for(int i = 0; i < str.length(); i++){
+            if(!Character.isDigit(str.charAt(i))){
+                return false;
+            }
+        }
+        if(Integer.parseInt(str) == 0){
+            return false;
+        }
+        if(Integer.parseInt(str) > 10000){
+            return false;
+        }
+        return true;
+    } 
 }
