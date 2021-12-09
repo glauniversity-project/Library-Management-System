@@ -163,6 +163,44 @@ public class AddStudent extends JFrame implements ActionListener{
                 conn con = new conn();
                 String sql = "insert into student(student_id, name, father, course, branch, year, semester) values(?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement st = con.c.prepareStatement(sql);
+           
+                
+                
+                if(t2.getText().isEmpty() || t2.getText().trim().isEmpty()){
+                    t2.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Name is Empty");
+                    st.close();
+                    return;
+                }
+                else{
+                    
+                    if(!isNameValid(t2.getText().trim())){
+                        t2.setBorder(BorderFactory.createLineBorder(Color.red));
+                        JOptionPane.showMessageDialog(null, "Name is Invalid");
+                        st.close();
+                        return;
+                    }
+                    else t2.setBorder(BorderFactory.createLineBorder(Color.black));
+                }
+                
+                if(t3.getText().isEmpty() || t3.getText().trim().isEmpty()){
+                    t3.setBorder(BorderFactory.createLineBorder(Color.red));
+                    JOptionPane.showMessageDialog(null, "Father's Name is Empty");
+                    st.close();
+                    return;
+                }
+                else{
+                    
+                    if(!isNameValid(t3.getText().trim())){
+                        t3.setBorder(BorderFactory.createLineBorder(Color.red));
+                        JOptionPane.showMessageDialog(null, "Name is Invalid");
+                        st.close();
+                        return;
+                    }
+                    else t3.setBorder(BorderFactory.createLineBorder(Color.black));
+                }
+                
+                
 		st.setString(1, t1.getText());
 		st.setString(2, t2.getText());
 		st.setString(3, t3.getText());
@@ -170,12 +208,20 @@ public class AddStudent extends JFrame implements ActionListener{
 		st.setString(5, (String) comboBox.getSelectedItem());
 		st.setString(6, (String) comboBox_1.getSelectedItem());
 		st.setString(7, (String) comboBox_2.getSelectedItem());
-
+                
+                
 		int i = st.executeUpdate();
 		if (i > 0){
                     JOptionPane.showMessageDialog(null, "Successfully Added");
-                    this.setVisible(false);
-                    new Home().setVisible(true);
+                    
+                
+                    t2.setText("");
+                    t3.setText("");
+                    comboBox_3.setSelectedIndex(0);
+                    comboBox.setSelectedIndex(0);
+                    comboBox_1.setSelectedIndex(0);
+                    comboBox_2.setSelectedIndex(0);
+                    random();
                 }
 		else
                     JOptionPane.showMessageDialog(null, "error");
@@ -192,4 +238,16 @@ public class AddStudent extends JFrame implements ActionListener{
             
         }
     }
+    
+    public boolean isNameValid(String str){
+        String str1 = "!@#$%^&*()?><[]::{}_-;',.``~\\|";
+        for(int i=0; i < str.length(); i++){
+            CharSequence ch = String.valueOf(str.charAt(i));
+            if(Character.isDigit(str.charAt(i)) || str1.contains(ch)){
+                return false;
+            }
+        }
+        return true;
+    }
+       
 }
