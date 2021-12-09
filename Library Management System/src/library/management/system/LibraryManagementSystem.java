@@ -20,7 +20,10 @@ public class LibraryManagementSystem extends JFrame implements ActionListener{
                 
                 b1.setBackground(Color.WHITE);
                 b1.setForeground(Color.BLACK);
-	        ImageIcon i1  = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/first.jpg"));
+				
+                
+                
+                ImageIcon i1  = new ImageIcon(ClassLoader.getSystemResource("library/management/system/icons/first.jpg"));
                 Image i3 = i1.getImage().getScaledInstance(1366, 390,Image.SCALE_DEFAULT);
                 ImageIcon i2 = new ImageIcon(i3);
                 l1 = new JLabel(i2);
@@ -39,7 +42,8 @@ public class LibraryManagementSystem extends JFrame implements ActionListener{
                 this.setVisible(false);
                 
         }
-         public static void main(String[] args) {
+        
+        public static void main(String[] args) {
                 LibraryManagementSystem window = new LibraryManagementSystem();
                 window.setVisible(true);			
 	}
