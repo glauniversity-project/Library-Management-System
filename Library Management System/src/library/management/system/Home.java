@@ -102,6 +102,7 @@ public class Home extends JFrame implements ActionListener{
             Image i5 = i4.getImage().getScaledInstance(200, 200,Image.SCALE_DEFAULT);
             ImageIcon i6 = new ImageIcon(i5);
             l3 = new JLabel(i6);
+//                    (x,y,width,height)
             l3.setBounds(300, 160, 134, 128);
             contentPane.add(l3);
 
@@ -207,8 +208,10 @@ public class Home extends JFrame implements ActionListener{
                 System.exit(ABORT);
             
             }else if(msg.equals("Read Me")){
+                
                 setVisible(false);
 		new readme().setVisible(true);
+                
             
             }else if(msg.equals("About Us")){
                 setVisible(false);
@@ -246,7 +249,8 @@ public class Home extends JFrame implements ActionListener{
             }
             if(ae.getSource() == b6){
                 this.setVisible(false);
-                new aboutUs().setVisible(true); 
+                new aboutUs().setVisible(true);
+            
             }
             
         }
